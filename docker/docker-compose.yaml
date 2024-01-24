@@ -1,0 +1,73 @@
+version: "3.8"
+name: warlist
+# all ports are sent to the host (host.docker.internal)
+services:
+  # https://hackernoon.com/mariadb-phpmyadmin-docker-running-local-database-ok9q36ji
+  postgres:
+    image: postgres
+    container_name: postgreWarlist
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: qwerty
+      POSTGRES_USER: root
+    ports:
+      - "8293:8080"
+    volumes:
+      - ./db/data:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: phpmyadminwarlist
+    depends_on:
+      - postgres
+    ports:
+      - "8190:80"
+    environment:
+      - PMA_ARBITRARY=1
+      # only works in tunnel mode on mac
+      - PMA_HOST=host.docker.internal
+      - PMA_PORT=3306
+    networks:
+      - default
+
+  adminer:
+    container_name: adminerwarlist
+    image: adminer
+    restart: always
+    ports:
+      - "8193:8080"
+    environment:
+      - ADMINER_DEFAULT_SERVER=host.docker.internal:3306
+    networks:
+      - default
+  mailhog:
+    container_name: mailhogwarlist
+    image: mailhog/mailhog
+    restart: always
+    ports:
+      - "8191:8025"
+    networks:
+      - default
+
+  warlist:
+    build:
+      context: ../
+      dockerfile: ./docker/warlist/Dockerfile
+    # will restart @ server restart
+    restart: always
+    ports:
+      - "1180:80"
+      # xdebug, but no need to do this if xdebug is in connect_host  mode
+      # - "9003:9003"
+    volumes:
+      - ../:/var/www/warlist
+      - ./warlist/apache.conf:/etc/apache2/sites-enabled/001-warlist.conf
+      - ./warlist/warlist.ini:/usr/local/etc/php/conf.d/warlist.ini
+      - ./warlist/depot:/tmp/depot
+      - ./warlist/supervisor-monitoring.conf:/etc/supervisor/conf.d/warlist-monitoring.conf
+    depends_on:
+      - postgres
+  #profiles: ["dev"] # only runs with dev profile
+networks:
+  default:
+    name: warlist
