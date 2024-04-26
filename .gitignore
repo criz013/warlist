@@ -50,3 +50,15 @@
 
 # Embedded web-server pid file
 /.web-server-pid
+
+# System and Ide's files ----------
+
+/.idea/
+.DS_Store
+/build/
+.buildpath
+.project
+.settings/
+keycloak_rest_call
+.eclipse-pmd
+.vscode
