@@ -62,3 +62,9 @@
 keycloak_rest_call
 .eclipse-pmd
 .vscode
+###> symfony/webpack-encore-bundle ###
+/node_modules/
+/public/build/
+npm-debug.log
+yarn-error.log
+###< symfony/webpack-encore-bundle ###
